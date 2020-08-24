@@ -1,0 +1,151 @@
+<div class="app-heading">
+  <h2>
+    {{title}}
+  </h2>
+</div>
+
+<div class="container">
+  <div class="app-from">
+    <form [hidden]="hideMarketForm" (ngSubmit)="submit()" [formGroup]="marketForm" novalidate style="display: flex; flex-direction: column;">
+      <div class="row">
+        <div class="col-6">
+          <h3>Market Infos</h3>
+          <div class="form-group app-from-group">
+            <h5>Market name</h5>
+            <input type="text" name="superMarketName" class="form-control" placeholder="Enter the super market name"
+              formControlName='superMarketName' autocomplete="off">
+          </div>
+          <div class="form-group app-from-group">
+            <h5>Main image</h5>
+            <img id="mainImage" class="mainImageSize" [src]="mainImageUrl" />
+            <input #imageInput type="file" accept="image/*" (change)="detectMainImageFile($event)"
+              name="superMarketMainImage" class="form-control" placeholder="Enter the main image"
+              formControlName='superMarketMainImage' style="border-color: none;">
+          </div>
+          <div class="form-group app-from-group">
+            <h5>Additional images</h5>
+            <div class="additionalImageText" *ngFor="let url of additionalImageUrls; let i = index">
+              <div class="thumb">
+                <span>Additional image {{ i+1 }}</span>
+                <div class="thumbs">
+                  <div class="otherThumbsAdditionalImages">
+                    <img class="img-border imgAdditional" [src]="url"/>
+                  </div>
+                </div>
+                <span class="spanSuperMarket" (click)="deleteImage(url);">🗑️</span>
+              </div>
+            </div>
+            <input #imageInput type="file" accept="image/*" multiple (change)="detectAdditionalImageFile($event)"
+              name="superMarketAdditionalImages" class="form-control" placeholder="Enter a additional image"
+              formControlName='superMarketAdditionalImages'>
+          </div>
+          <div class="form-group app-from-group">
+            <h5>Description</h5>
+            <input type="text" name="superMarketDescription" class="form-control" placeholder="Enter a description"
+              formControlName='superMarketDescription' autocomplete="off">
+          </div>
+          <div class="form-group app-from-group">
+            <h5>Phone number</h5>
+            <input type="text" name="superMarketPhone" class="form-control" placeholder="Enter the phone"
+              formControlName='superMarketPhone' autocomplete="off" phoneNumber mask="(00) 00000-0000">
+            <div class="feedback"
+              *ngIf="!marketForm.controls['superMarketPhone'].valid && (marketForm.controls['superMarketPhone'].dirty || marketForm.controls['superMarketPhone'].touched)">
+              Phone number is required in proper format
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="form-group app-from-group">
+            <div formGroupName="superMarketAddress">
+              <h3>Address</h3>
+              <div class="form-group app-from-group">
+                <h5>Street</h5>
+                <input type="text" name="street" class="form-control" placeholder="Enter the street" formControlName='street'
+                  autocomplete="off">
+              </div>
+              <div class="form-group app-from-group">
+                <h5>Number</h5>
+                <input type="number" name="number" class="form-control" placeholder="Enter the number"
+                  formControlName='number' autocomplete="off">
+              </div>
+              <div class="form-group app-from-group">
+                <h5>District</h5>
+                <input type="text" name="district" class="form-control" placeholder="Enter the district"
+                  formControlName='district' autocomplete="off">
+              </div>
+              <div class="form-group app-from-group">
+                <h5>Zip</h5>
+                <input type="text" name="zip" class="form-control" placeholder="Enter the zip code" formControlName='zip'
+                  autocomplete="off" zipCode mask="00000-000">
+                <div class="feedback"
+                  *ngIf="!marketForm.controls.superMarketAddress.controls['zip'].valid && (marketForm.controls.superMarketAddress.controls['zip'].dirty || marketForm.controls.superMarketAddress.controls['zip'].touched)">
+                  Zip is required in proper format
+                </div>
+              </div>
+              <div class="form-group app-from-group">
+                <h5>Country</h5>
+                <input type="text" name="country" class="form-control" placeholder="Enter the country"
+                  formControlName='country' autocomplete="off">
+              </div>
+              <div class="form-group app-from-group">
+                <h5>City</h5>
+                <input type="text" name="city" class="form-control" placeholder="Enter the city" formControlName='city'
+                  autocomplete="off">
+              </div>
+              <div class="form-group app-from-group">
+                <h5>State</h5>
+                <input type="text" name="state" class="form-control" placeholder="Enter the state" formControlName='state'
+                  autocomplete="off">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <br />
+        <button type='button' (click)="backToForm()" class="mr-1 btn btn-danger form-submit-button">
+          Back
+        </button>
+        <button type='submit' *ngIf='selectedSuperMarketId !== null' class="mr-1 btn btn-primary form-submit-button">Update
+          Super Market</button>
+        <button type='submit' *ngIf='selectedSuperMarketId === null' class="mr-1 btn btn-primary form-submit-button">Save
+          Super Market</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="markets-list" [hidden]="hideMarketList" *ngIf='marketsList.length !== 0'>
+    <h3 class="market-list-heading">List of Markets</h3>
+    <hr>
+    <div class="list-of-markets">
+      <ul class="list-group">
+        <li *ngFor="let superMarket of marketsList" class="list-group-item"
+          (click)="showDescription.toggle();hideThumbs()">
+          <div class="thumb">
+            <span>{{ superMarket.superMarketName }}</span>
+            <div [ngStyle]="{'visibility':hideThumb ? 'hidden' : 'visible'}" class="thumbs">
+              <img class="img-border imgMain" [src]="superMarket.superMarketMainImage"/>
+              <div class="otherThumbs">
+                <img class="img-small img-border" *ngFor="let url of superMarket.superMarketAdditionalImages" [src]="url"/>
+              </div>
+            </div>
+            <span class="spanSuperMarket" (click)="deleteSuperMarket(superMarket._id)">🗑️</span>
+            <span class="spanSuperMarket" (click)="editSuperMarket(superMarket);showDescription.toggle();hideThumbs()">✏️</span>
+          </div>
+          <div class="" mdbCollapse #showDescription="bs-collapse">
+            <div class="card card-body"> 
+              {{ superMarket.superMarketDescription }}
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <button type='button' [hidden]="hideButton" class="btn btn-primary form-submit-button formAddButton" (click)="showForm()">
+    Add Super Market
+  </button>
+</div>
+<ngx-spinner bdColor="rgba(51, 51, 51, 0.8)" size="default" type="ball-spin-clockwise">  
+  <p style="color: white">Please Wait. </p>  
+</ngx-spinner>
+<div class="topbar" *ngIf="isShowMessage">{{ alertMessage }}</div>
